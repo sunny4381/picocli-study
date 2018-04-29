@@ -2,14 +2,24 @@ package io.github.sunny4381
 
 import picocli.CommandLine
 
+private fun doMain(option: MainOption) = println("main")
+private fun doStatus(option: StatusOption) = println("status")
+private fun doCommit(option: CommitOption) = println("commit")
+
 fun main(args: Array<String>) {
     val commandLine = CommandLine(MainOption())
     val result = commandLine.parseArgs(*args)
-    if (result.hasSubcommand()) {
-        val command = result.subcommand().commandSpec().userObject()
-        println("command = ${command.javaClass}")
+    val command = if (result.hasSubcommand()) {
+        result.subcommand().commandSpec().userObject()
     } else {
-        val command = result.commandSpec().userObject()
-        println("command = ${command.javaClass}")
+        result.commandSpec().userObject()
+    }
+
+    println("command = ${command.javaClass}")
+    when (command) {
+        is MainOption -> doMain(command)
+        is StatusOption -> doStatus(command)
+        is CommitOption -> doCommit(command)
+        else -> throw IllegalArgumentException("unknown command: ${command}")
     }
 }
